@@ -1,0 +1,44 @@
+version: 0.2
+env:
+    git-credential-helper: yes
+phases:
+    install:
+      runtime-versions:
+        python: 3.9
+      commands:
+        - . env/.env.$STAGE
+        - pwd
+        - ls
+        - python -m pip install --upgrade aws-sam-cli
+        - python -m pip install pyOpenSSL --upgrade
+        - sam --version
+        - cd layer
+        - mkdir python
+        - cd python
+        - pip install -r ../requirements.txt
+        - ls -lhrt
+        - cd ../..
+        - echo ${REGION}
+        - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com
+        - IMAGE_TAG=latest
+        - echo $IMAGE_TAG
+        # - mkdir env
+        - echo "IMAGE_TAG=$IMAGE_TAG" >> env/.env.$STAGE
+        - cat env/.env.$STAGE
+        - ls -lart env
+    build:
+      commands:
+        - echo Building Docker image...
+        - docker build -t ${PREFIX}-data-scrapping-${STAGE}-ecr .
+        - docker tag ${PREFIX}-data-scrapping-${STAGE}-ecr:latest $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/${PREFIX}-data-scrapping-${STAGE}-ecr:$IMAGE_TAG
+    post_build:
+      commands:
+        - echo Pushing Docker image to Amazon ECR...
+        - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/${PREFIX}-data-scrapping-${STAGE}-ecr:$IMAGE_TAG   
+        - sam build -t ${SAM_TEMPLATE} --region ${REGION}
+        - sam package --s3-bucket $ARTIFACT_BUCKET --image-repository $ECR_REPOSITORY --region $REGION --output-template-file packaged.yaml
+    
+artifacts:
+  files:
+    - packaged.yaml
+    - '**/*'

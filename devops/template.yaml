@@ -1,0 +1,87 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: 'AWS::Serverless-2016-10-31'
+Description: 'Sample template for test api'
+Globals:
+  Function:
+    Timeout: 480
+Parameters:
+  Region:
+    Type: String
+    Default: ""
+  ResourcePrefix:
+    Type: String
+    Default: ""
+  Environment:
+    Type: String
+    Default: dev
+ 
+Resources:
+
+  LambdaExecutionRoles:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Join ['-', [!Ref ResourcePrefix, !Ref Environment, executionrole]]
+      Path: '/'
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/CloudWatchLambdaInsightsExecutionRolePolicy
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+        - arn:aws:iam::aws:policy/AWSXrayWriteOnlyAccess
+        - arn:aws:iam::aws:policy/SecretsManagerReadWrite
+        - arn:aws:iam::aws:policy/AmazonCognitoPowerUser
+        - arn:aws:iam::aws:policy/AmazonS3FullAccess
+        - arn:aws:iam::aws:policy/AmazonTextractFullAccess
+      Policies:
+        - PolicyName: !Join ['-', [!Ref ResourcePrefix, !Ref Environment, function-policy]]
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - lambda:*
+                  - logs:CreateLogGroup
+                  - logs:PutLogEvents
+                  - logs:CreateLogStream
+                  - cloudwatch:*
+                  - dynamodb:*
+                  - sqs:*
+                  - ses:*
+                  - cognito-idp:*
+                  - secretsmanager:*
+                  - s3:*
+                Resource: "*"
+
+  ApiTriggerLambdaFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Join ['-', [!Ref ResourcePrefix, !Ref Environment, add]]
+      CodeUri: ../src/
+      MemorySize: 256
+      Handler: add.add
+      Runtime: python3.9
+      Tracing: Active
+      Role: !GetAtt LambdaExecutionRoles.Arn
+      Environment:
+        Variables:
+          REGION: !Ref Region
+      Layers:
+       - !Ref AppLayers
+      Tags:
+        Project: !Ref ResourcePrefix
+        Environment: !Ref Environment
+
+
+  ApiGatewayInvokeLambdaPermissionApiTrigger:
+    Type: 'AWS::Lambda::Permission'
+    Properties:
+      Action: 'lambda:InvokeFunction'
+      FunctionName: !Ref ApiTriggerLambdaFunction
+      Principal: 'apigateway.amazonaws.com'

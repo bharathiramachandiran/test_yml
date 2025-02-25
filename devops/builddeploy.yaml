@@ -1,0 +1,20 @@
+version: 0.2
+env:
+  variables:
+      NODE_ENV: $STAGE
+phases:
+  install:
+    runtime-versions:
+      python: 3.9
+    commands:
+      - . env/.env.$STAGE
+      - ls -ltr
+      - python -m pip install --upgrade aws-sam-cli
+      - sam --version
+  pre_build:
+    commands:
+      - echo $STAGE
+  build:
+    commands:
+      - ls -ltr
+      - sam deploy -t packaged.yaml --stack-name $STACK_NAME --s3-bucket=$ARTIFACT_BUCKET --image-repository=$ECR_REPOSITORY --region=$REGION --capabilities=CAPABILITY_NAMED_IAM CAPABILITY_AUTO_EXPAND --parameter-overrides Environment=$ENVIRONMENT  ResourcePrefix=$PREFIX  Region=$REGION Username=$Username Password=$Password DBInstanceClass=$DBInstanceClass  SecretArn=$SECRET_ARN SecretArnForCRM=$SECRET_ARN_FOR_CRM DailyReportTable=$DAILY_REPORT StatsTable=$STATS RoleManagementTable=$ROLE_MANAGEMENT PolicyManagementTable=$POLICY_MANAGEMENT TenenantManagementTable=$TENANT_MANAGEMENT VendorManagementTable=$VENDOR_MANAGEMENT UserManagementTable=$USER_MANAGEMENT PrioritySphareTable=$PROIRITY_SPHARE
