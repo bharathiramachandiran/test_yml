@@ -17,12 +17,6 @@ phases:
     post_build:
       commands:
         - sam build -t ${SAM_TEMPLATE} --region ${REGION}
-        - sam package --s3-bucket $ARTIFACT_BUCKET --image-repository $ECR_REPOSITORY --region $REGION --output-template-file packaged.yaml
-
-      commands:
-        - echo "SAM_TEMPLATE: ${SAM_TEMPLATE}, REGION: ${REGION}"
-        - sam build -t ${SAM_TEMPLATE} --region ${REGION}
-
     
 artifacts:
   files:
