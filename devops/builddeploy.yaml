@@ -7,7 +7,6 @@ phases:
     runtime-versions:
       python: 3.9
     commands:
-      - . env/.env.$STAGE
       - ls -ltr
       - python -m pip install --upgrade aws-sam-cli
       - sam --version
