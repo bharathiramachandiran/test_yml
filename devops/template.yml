@@ -72,8 +72,6 @@ Resources:
       Environment:
         Variables:
           REGION: !Ref Region
-      Layers:
-       - !Ref AppLayers
       Tags:
         Project: !Ref ResourcePrefix
         Environment: !Ref Environment
