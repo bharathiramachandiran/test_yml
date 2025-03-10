@@ -13,15 +13,11 @@ phases:
         - sam --version
     build:
       commands:
-        - echo Building Docker image...
-        - docker build -t ${PREFIX}-data-scrapping-${STAGE}-ecr .
-        - docker tag ${PREFIX}-data-scrapping-${STAGE}-ecr:latest $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/${PREFIX}-data-scrapping-${STAGE}-ecr:$IMAGE_TAG
+        - echo Building test ...
     post_build:
       commands:
-        - echo Pushing Docker image to Amazon ECR...
-        - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/${PREFIX}-data-scrapping-${STAGE}-ecr:$IMAGE_TAG   
         - sam build -t ${SAM_TEMPLATE} --region ${REGION}
-        - sam package --s3-bucket $ARTIFACT_BUCKET --image-repository $ECR_REPOSITORY --region $REGION --output-template-file packaged.yaml
+        - sam package --s3-bucket $ARTIFACT_BUCKET --region $REGION --output-template-file packaged.yaml
     
 artifacts:
   files:
