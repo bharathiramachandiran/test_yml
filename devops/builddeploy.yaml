@@ -16,4 +16,4 @@ phases:
   build:
     commands:
       - ls -ltr
-      - sam deploy -t packaged.yaml --stack-name $STACK_NAME --s3-bucket=$ARTIFACT_BUCKET --region=$REGION --capabilities=CAPABILITY_NAMED_IAM CAPABILITY_AUTO_EXPAND --parameter-overrides Environment=$ENVIRONMENT  ResourcePrefix=$PREFIX  Region=$REGION Username=$Username Password=$Password DBInstanceClass=$DBInstanceClass  SecretArn=$SECRET_ARN SecretArnForCRM=$SECRET_ARN_FOR_CRM DailyReportTable=$DAILY_REPORT StatsTable=$STATS RoleManagementTable=$ROLE_MANAGEMENT PolicyManagementTable=$POLICY_MANAGEMENT TenenantManagementTable=$TENANT_MANAGEMENT VendorManagementTable=$VENDOR_MANAGEMENT UserManagementTable=$USER_MANAGEMENT PrioritySphareTable=$PROIRITY_SPHARE
+      - sam deploy -t packaged.yaml --stack-name $STACK_NAME --s3-bucket=$ARTIFACT_BUCKET --region=$REGION --capabilities=CAPABILITY_NAMED_IAM CAPABILITY_AUTO_EXPAND --parameter-overrides Environment=$ENVIRONMENT  ResourcePrefix=$PREFIX  Region=$REGION
